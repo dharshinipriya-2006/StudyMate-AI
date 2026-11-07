@@ -96,7 +96,8 @@ features = {
     "Doubt Solver": "Solve the student's doubt step by step with a simple example.",
     "AI Study Planner": "Create a practical study timetable with learning goals, breaks and revision.",
     "Ask My PDF": "Answer questions using the uploaded PDF document. If the answer is not in the document, clearly say so.",
-    "Internet Search": "Use the latest internet search results to answer the student's question. Include useful source links and explain the information in simple English."
+    "Internet Search": "Use the latest internet search results to answer the student's question. Include useful source links and explain the information in simple English.",
+    "Coding Assistant": "Act as an expert programming tutor. Generate correct code in Python, Java, C, and C++. Explain code line by line, debug errors, identify mistakes, and suggest optimized solutions. Use beginner-friendly explanations."
 }
 
 # ---------- SESSION STATE ----------
