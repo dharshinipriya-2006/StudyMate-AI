@@ -74,7 +74,8 @@ features = {
     "Quiz Generator": "Create 5 multiple-choice questions with four options, correct answers and explanations.",
     "Flashcard Generator": "Create 10 question-and-answer flashcards for revision.",
     "Doubt Solver": "Solve the student's doubt step by step with a simple example.",
-    "AI Study Planner": "Create a practical study timetable with learning goals, breaks and revision."
+    "AI Study Planner": "Create a practical study timetable with learning goals, breaks and revision.",
+    "Ask My PDF": "Answer questions using the uploaded PDF document. If the answer is not in the document, clearly say so."
 }
 
 # ---------- SESSION STATE ----------
