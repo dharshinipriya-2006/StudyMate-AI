@@ -136,6 +136,13 @@ if uploaded_pdf:
     )
 
 # ---------- SIDEBAR ----------
+# ---------- IMAGE UPLOAD ----------
+st.sidebar.markdown("### 🖼️ Upload an Image")
+
+uploaded_image = st.sidebar.file_uploader(
+    "Choose an image",
+    type=["png", "jpg", "jpeg"]
+)
 st.sidebar.markdown("### 💻 Programming Language")
 
 programming_language = st.sidebar.selectbox(
