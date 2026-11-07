@@ -186,6 +186,11 @@ for message in st.session_state.messages:
 user_input = st.chat_input("Message StudyMate AI...")
 
 if user_input:
+       search_results = ""
+
+    if st.session_state.feature == "Internet Search":
+        with st.spinner("Searching the internet..."):
+            search_results = search_internet(user_input)
     st.session_state.messages.append({
         "role": "user",
         "content": user_input
