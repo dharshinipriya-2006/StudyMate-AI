@@ -78,6 +78,8 @@ features = {
 }
 
 # ---------- SESSION STATE ----------
+if "pdf_text" not in st.session_state:
+    st.session_state.pdf_text = ""
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
