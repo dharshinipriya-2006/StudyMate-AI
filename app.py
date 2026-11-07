@@ -2,6 +2,26 @@
 import os
 import streamlit as st
 from google import genai
+from ddgs import DDGS
+
+
+def search_internet(query):
+    try:
+        results = DDGS().text(query, max_results=5)
+
+        search_results = ""
+
+        for result in results:
+            search_results += (
+                f"Title: {result.get('title', '')}\n"
+                f"Description: {result.get('body', '')}\n"
+                f"Link: {result.get('href', '')}\n\n"
+            )
+
+        return search_results or "No search results found."
+
+    except Exception as e:
+        return f"Search error: {str(e)}"
 
 # ---------- PAGE CONFIG ----------
 st.set_page_config(
