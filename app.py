@@ -145,7 +145,15 @@ with st.sidebar:
         st.session_state.messages = []
         st.session_state.pdf_text = ""
         st.rerun()
-   
+    st.markdown("### 💬 Chat History")
+
+if st.session_state.messages:
+    st.caption("Current conversation")
+    st.write(f"Messages: {len(st.session_state.messages)}")
+else:
+    st.caption("No previous conversations yet.")
+
+st.divider()
     st.markdown("### Study Tools")
 
     selected_feature = st.radio(
