@@ -216,6 +216,8 @@ answer it naturally while respecting the selected learning mode.
 
 Uploaded PDF content:
 {st.session_state.get("pdf_text", "")[:30000]}
+Internet search results:
+{search_results}
 Student's message:
 {user_input}
 """
