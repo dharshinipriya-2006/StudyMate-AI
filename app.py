@@ -188,6 +188,8 @@ Use simple English, clear headings and practical examples.
 Be accurate and helpful. If the user asks a general follow-up,
 answer it naturally while respecting the selected learning mode.
 
+Uploaded PDF content:
+{st.session_state.get("pdf_text", "")[:30000]}
 Student's message:
 {user_input}
 """
