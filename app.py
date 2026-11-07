@@ -14,7 +14,7 @@ st.subheader("Your Personal AI Study Assistant")
 
 st.write("Learn smarter with your AI-powered study companion!")
 
-api_key = os.getenv("GEMINI_API_KEY")
+api_key = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
 
 if not api_key:
     st.error("Gemini API key is not configured.")
