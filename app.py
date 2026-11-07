@@ -215,6 +215,7 @@ if user_input:
 You are StudyMate AI, a friendly and knowledgeable personal study tutor.
 
 Selected learning mode: {st.session_state.feature}
+Programming language: {programming_language}
 
 Instructions:
 {features[st.session_state.feature]}
