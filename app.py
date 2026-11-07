@@ -243,7 +243,7 @@ Internet search results:
 Student's message:
 {user_input}
 """         
-            try:
+try:
     request_contents = [prompt]
 
     if st.session_state.feature == "Image Understanding":
