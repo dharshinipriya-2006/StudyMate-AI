@@ -1,5 +1,6 @@
-
+ 
 import os
+import hashlib
 import streamlit as st
 from google import genai
 from google.genai import types
@@ -33,10 +34,10 @@ def search_internet(query):
         return search_results or "No search results found."
 
     except Exception as e:
-        return f"Search error: {str(e)}"
+        return f"Search error: {e}"
 
 
-# ---------- CUSTOM DESIGN ----------
+# ---------- DESIGN ----------
 st.markdown("""
 <style>
 .stApp {
@@ -69,9 +70,6 @@ st.markdown("""
     border-radius: 15px;
     border: 1px solid #30323B;
 }
-.stChatInput {
-    border-radius: 18px;
-}
 div.stButton > button {
     border-radius: 12px;
     border: 1px solid #414450;
@@ -96,7 +94,7 @@ MODEL_NAME = "gemini-3.5-flash-lite"
 
 # ---------- STUDY TOOLS ----------
 features = {
-    "AI Tutor": "Explain the topic step by step using simple English and examples. Ask one practice question.",
+    "AI Tutor": "Explain the topic step by step using simple English and examples.",
 
     "Notes Summarizer": "Summarize the notes with an overview, important points, definitions and exam preparation notes.",
 
@@ -108,27 +106,34 @@ features = {
 
     "AI Study Planner": "Create a practical study timetable with learning goals, breaks and revision.",
 
-    "Ask My PDF": "Answer questions using the uploaded PDF document. If the answer is not in the document, clearly say so.",
+    "Ask My PDF": "Answer questions using the uploaded PDF. If the answer is not in the document, clearly say so.",
 
-    "Internet Search": "Use the latest internet search results to answer the student's question. Include useful source links and explain the information in simple English.",
+    "Internet Search": "Use the latest internet search results to answer the question. Include useful source links.",
 
-    "Coding Assistant": "Act as an expert programming tutor. Generate correct code in Python, Java, C, and C++. Explain code line by line, debug errors, identify mistakes, and suggest optimized solutions. Use beginner-friendly explanations.",
+    "Coding Assistant": "Act as an expert programming tutor. Generate code in Python, Java, C and C++. Explain code line by line and debug errors.",
 
-    "Image Understanding": "Analyze the uploaded image carefully. Explain diagrams, handwritten notes, mathematical problems, flowcharts, and programming screenshots in simple English."
+    "Image Understanding": "Analyze the uploaded image carefully. Explain diagrams, handwritten notes, mathematical problems and programming screenshots."
 }
 
 
 # ---------- SESSION STATE ----------
-if "pdf_text" not in st.session_state:
-    st.session_state.pdf_text = ""
-
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-if "total_questions" not in st.session_state:
-    st.session_state.total_questions = 0
+if "pdf_text" not in st.session_state:
+    st.session_state.pdf_text = ""
+
+if "uploaded_image" not in st.session_state:
+    st.session_state.uploaded_image = None
+
 if "feature" not in st.session_state:
     st.session_state.feature = "AI Tutor"
+
+if "total_questions" not in st.session_state:
+    st.session_state.total_questions = 0
+
+if "last_audio_hash" not in st.session_state:
+    st.session_state.last_audio_hash = ""
 
 
 # ---------- SIDEBAR ----------
@@ -139,33 +144,70 @@ with st.sidebar:
 
     st.divider()
 
+    # NEW CHAT
     if st.button("＋ New Chat", use_container_width=True):
-        st.session_state.messages = []
-        st.rerun()
-
-    if st.button("🗑️ Clear Chat History", use_container_width=True):
         st.session_state.messages = []
         st.session_state.pdf_text = ""
         st.rerun()
 
+    # CLEAR HISTORY
+    if st.button("🗑️ Clear Chat History", use_container_width=True):
+        st.session_state.messages = []
+        st.session_state.pdf_text = ""
+        st.session_state.total_questions = 0
+        st.session_state.last_audio_hash = ""
+        st.rerun()
+
+    st.divider()
+
+    # CHAT HISTORY
     st.markdown("### 💬 Chat History")
 
     if st.session_state.messages:
+
         st.caption("Current conversation")
-        st.write(f"Messages: {len(st.session_state.messages)}")
+
+        st.write(
+            f"Messages: {len(st.session_state.messages)}"
+        )
+
+        user_questions = [
+            message["content"]
+            for message in st.session_state.messages
+            if message["role"] == "user"
+        ]
+
+        for index, question in enumerate(user_questions[-5:], 1):
+            st.caption(f"{index}. {question[:60]}")
+
     else:
         st.caption("No previous conversations yet.")
 
     st.divider()
 
+    # LEARNING DASHBOARD
     st.markdown("### 📊 Learning Dashboard")
-    st.metric("Total Questions Asked", st.session_state.total_questions)
 
+    st.metric(
+        "Total Questions Asked",
+        st.session_state.total_questions
+    )
+
+    st.metric(
+        "Messages in Chat",
+        len(st.session_state.messages)
+    )
+
+    # EXPORT CHAT
     if st.session_state.messages:
+
         chat_text = ""
 
         for message in st.session_state.messages:
-            chat_text += f"{message['role'].upper()}:\n{message['content']}\n\n"
+            chat_text += (
+                f"{message['role'].upper()}:\n"
+                f"{message['content']}\n\n"
+            )
 
         st.download_button(
             label="📥 Download Chat",
@@ -176,6 +218,8 @@ with st.sidebar:
         )
 
     st.divider()
+
+    # STUDY TOOLS
     st.markdown("### Study Tools")
 
     selected_feature = st.radio(
@@ -195,7 +239,8 @@ with st.sidebar:
 
     uploaded_pdf = st.file_uploader(
         "Choose a PDF file",
-        type=["pdf"]
+        type=["pdf"],
+        key="pdf_uploader"
     )
 
     if uploaded_pdf:
@@ -220,7 +265,8 @@ with st.sidebar:
 
     uploaded_image = st.file_uploader(
         "Choose an image",
-        type=["png", "jpg", "jpeg"]
+        type=["png", "jpg", "jpeg"],
+        key="image_uploader"
     )
 
     if uploaded_image:
@@ -242,10 +288,9 @@ with st.sidebar:
     st.caption("Powered by Google Gemini")
 
 
-# ---------- MAIN CHAT ----------
+# ---------- MAIN PAGE ----------
 st.markdown(
-    f"<p style='color:#A7AAB5'>📚 StudyMate AI / {st.session_state.feature}</p>",
-    unsafe_allow_html=True
+    f"📚 StudyMate AI / {st.session_state.feature}"
 )
 
 if not st.session_state.messages:
@@ -260,43 +305,77 @@ if not st.session_state.messages:
 
 # ---------- DISPLAY CHAT HISTORY ----------
 for message in st.session_state.messages:
+
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
 
-# ---------- CHAT INPUT ----------
-user_input = st.chat_input("Message StudyMate AI...")
+# ---------- USER INPUT ----------
+typed_input = st.chat_input("Message StudyMate AI...")
 
 voice_input = st.audio_input("🎤 Record your question")
 
-if voice_input:
-    with st.spinner("Converting your voice into text..."):
-        try:
-            audio_part = types.Part.from_bytes(
-                data=voice_input.getvalue(),
-                mime_type=voice_input.type
-            )
+user_input = typed_input
 
-            transcription = client.models.generate_content(
-                model=MODEL_NAME,
-                contents=[
-                    "Transcribe the spoken words exactly. Return only the transcription.",
-                    audio_part
-                ]
-            )
 
-            user_input = transcription.text
+# ---------- VOICE TRANSCRIPTION ----------
+if voice_input is not None:
 
-        except Exception as e:
-            st.error(f"Voice transcription error: {e}")
-            st.stop()
-            
+    audio_bytes = voice_input.getvalue()
+
+    audio_hash = hashlib.sha256(audio_bytes).hexdigest()
+
+    if audio_hash != st.session_state.last_audio_hash:
+
+        with st.spinner("Converting your voice into text..."):
+
+            try:
+                audio_part = types.Part.from_bytes(
+                    data=audio_bytes,
+                    mime_type=voice_input.type
+                )
+
+                transcription = client.models.generate_content(
+                    model=MODEL_NAME,
+                    contents=[
+                        "Transcribe the spoken words exactly. Return only the transcription.",
+                        audio_part
+                    ]
+                )
+
+                user_input = (transcription.text or "").strip()
+
+                st.session_state.last_audio_hash = audio_hash
+
+                if user_input:
+                    st.info(f"Voice transcription: {user_input}")
+
+            except Exception as e:
+                st.error(f"Voice transcription error: {e}")
+
+
+# ---------- PROCESS QUESTION ----------
+if user_input:
+
+    # PREVIOUS CONVERSATION CONTEXT
+    previous_messages = st.session_state.messages[-10:]
+
+    history_context = ""
+
+    for message in previous_messages:
+        history_context += (
+            f"{message['role'].upper()}: "
+            f"{message['content']}\n"
+        )
+
+    # COUNT QUESTION
     st.session_state.total_questions += 1
-   
-    # SEARCH INTERNET
+
+    # INTERNET SEARCH
     search_results = ""
 
     if st.session_state.feature == "Internet Search":
+
         with st.spinner("Searching the internet..."):
             search_results = search_internet(user_input)
 
@@ -327,17 +406,14 @@ Instructions:
 Use simple English, clear headings and practical examples.
 Be accurate and helpful.
 
-If the user asks a general follow-up,
-answer naturally while respecting the selected learning mode.
+Previous conversation:
+{history_context}
 
 Uploaded PDF content:
-{st.session_state.get("pdf_text", "")[:30000]}
+{st.session_state.pdf_text[:30000]}
 
 Internet search results:
 {search_results}
-
-Previous conversation:
-{st.session_state.messages[-10:]}
 
 Student's message:
 {user_input}
@@ -350,7 +426,7 @@ Student's message:
                 # IMAGE UNDERSTANDING
                 if st.session_state.feature == "Image Understanding":
 
-                    if "uploaded_image" in st.session_state:
+                    if st.session_state.uploaded_image is not None:
 
                         image_part = types.Part.from_bytes(
                             data=st.session_state.uploaded_image.getvalue(),
@@ -363,9 +439,10 @@ Student's message:
                         st.warning(
                             "Please upload an image in the sidebar first."
                         )
+
                         st.stop()
 
-                # GENERATE GEMINI RESPONSE
+                # GEMINI RESPONSE
                 response = client.models.generate_content(
                     model=MODEL_NAME,
                     contents=request_contents
@@ -375,7 +452,7 @@ Student's message:
 
                 st.markdown(answer)
 
-                # SAVE ASSISTANT MESSAGE
+                # SAVE ASSISTANT RESPONSE
                 st.session_state.messages.append({
                     "role": "assistant",
                     "content": answer
@@ -384,3 +461,5 @@ Student's message:
             except Exception as e:
 
                 st.error(f"Something went wrong: {e}")
+  
+  
