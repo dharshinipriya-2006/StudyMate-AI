@@ -151,6 +151,20 @@ with st.sidebar:
     st.markdown("### 💬 Chat History")
     st.markdown("### 📊 Learning Dashboard")
     st.metric("Total Questions Asked", st.session_state.total_questions)
+   
+    if st.session_state.messages:
+    chat_text = ""
+
+    for message in st.session_state.messages:
+        chat_text += f"{message['role'].upper()}:\n{message['content']}\n\n"
+
+    st.download_button(
+        label="📥 Download Chat",
+        data=chat_text,
+        file_name="StudyMate_Chat.txt",
+        mime="text/plain",
+        use_container_width=True
+    )
 
     if st.session_state.messages:
         st.caption("Current conversation")
