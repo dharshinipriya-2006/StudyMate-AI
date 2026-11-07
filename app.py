@@ -272,7 +272,9 @@ if voice_input:
         except Exception as e:
             st.error(f"Voice transcription error: {e}")
             st.stop()
-
+            
+    st.session_state.total_questions += 1
+   
     # SEARCH INTERNET
     search_results = ""
 
