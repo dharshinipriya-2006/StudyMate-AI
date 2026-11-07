@@ -95,7 +95,8 @@ features = {
     "Flashcard Generator": "Create 10 question-and-answer flashcards for revision.",
     "Doubt Solver": "Solve the student's doubt step by step with a simple example.",
     "AI Study Planner": "Create a practical study timetable with learning goals, breaks and revision.",
-    "Ask My PDF": "Answer questions using the uploaded PDF document. If the answer is not in the document, clearly say so."
+    "Ask My PDF": "Answer questions using the uploaded PDF document. If the answer is not in the document, clearly say so.",
+    "Internet Search": "Use the latest internet search results to answer the student's question. Include useful source links and explain the information in simple English."
 }
 
 # ---------- SESSION STATE ----------
