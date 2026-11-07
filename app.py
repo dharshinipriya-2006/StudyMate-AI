@@ -242,22 +242,24 @@ Internet search results:
 {search_results}
 Student's message:
 {user_input}
-"""
+"""         
             try:
-              request_contents = [prompt]
+    request_contents = [prompt]
 
-              if st.session_state.feature == "Image Understanding":
-                  if "uploaded_image" in st.session_state:
-                      image_part = types.Part.from_bytes(
-                          data=st.session_state.uploaded_image.getvalue(),
-                          mime_type=st.session_state.uploaded_image.type
-                      )
+    if st.session_state.feature == "Image Understanding":
+        if "uploaded_image" in st.session_state:
+            image_part = types.Part.from_bytes(
+                data=st.session_state.uploaded_image.getvalue(),
+                mime_type=st.session_state.uploaded_image.type
+            )
 
-                      request_contents.append(image_part)
-                       response = client.models.generate_content(
-                       model=MODEL_NAME,
-                       contents=prompt
-                )
+            request_contents.append(image_part)
+
+    response = client.models.generate_content(
+        model=MODEL_NAME,
+        contents=request_contents
+    )
+            
 
                 answer = response.text
                 st.markdown(answer)
