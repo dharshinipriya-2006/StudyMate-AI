@@ -83,6 +83,32 @@ if "messages" not in st.session_state:
 
 if "feature" not in st.session_state:
     st.session_state.feature = "AI Tutor"
+  
+# ---------- PDF UPLOAD ----------
+st.sidebar.markdown("### 📄 Upload Study Notes")
+
+uploaded_pdf = st.sidebar.file_uploader(
+    "Choose a PDF file",
+    type=["pdf"]
+)
+
+if uploaded_pdf:
+    from pypdf import PdfReader
+
+    reader = PdfReader(uploaded_pdf)
+
+    pdf_text = ""
+
+    for page in reader.pages:
+        pdf_text += page.extract_text() or ""
+
+    st.session_state.pdf_text = pdf_text
+
+    st.sidebar.success("PDF uploaded successfully!")
+
+    st.sidebar.caption(
+        f"Pages: {len(reader.pages)}"
+    )
 
 # ---------- SIDEBAR ----------
 with st.sidebar:
