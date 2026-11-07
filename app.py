@@ -4,8 +4,19 @@ import streamlit as st
 from google import genai
 from google.genai import types
 from ddgs import DDGS
+from pypdf import PdfReader
 
 
+# ---------- PAGE CONFIG ----------
+st.set_page_config(
+    page_title="StudyMate AI",
+    page_icon="📚",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+
+# ---------- INTERNET SEARCH ----------
 def search_internet(query):
     try:
         results = DDGS().text(query, max_results=5)
@@ -24,13 +35,6 @@ def search_internet(query):
     except Exception as e:
         return f"Search error: {str(e)}"
 
-# ---------- PAGE CONFIG ----------
-st.set_page_config(
-    page_title="StudyMate AI",
-    page_icon="📚",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
 # ---------- CUSTOM DESIGN ----------
 st.markdown("""
@@ -75,6 +79,7 @@ div.stButton > button {
 </style>
 """, unsafe_allow_html=True)
 
+
 # ---------- GEMINI CONNECTION ----------
 api_key = st.secrets.get(
     "GEMINI_API_KEY",
@@ -88,98 +93,119 @@ if not api_key:
 client = genai.Client(api_key=api_key)
 MODEL_NAME = "gemini-3.5-flash-lite"
 
+
 # ---------- STUDY TOOLS ----------
 features = {
     "AI Tutor": "Explain the topic step by step using simple English and examples. Ask one practice question.",
+
     "Notes Summarizer": "Summarize the notes with an overview, important points, definitions and exam preparation notes.",
+
     "Quiz Generator": "Create 5 multiple-choice questions with four options, correct answers and explanations.",
+
     "Flashcard Generator": "Create 10 question-and-answer flashcards for revision.",
+
     "Doubt Solver": "Solve the student's doubt step by step with a simple example.",
+
     "AI Study Planner": "Create a practical study timetable with learning goals, breaks and revision.",
+
     "Ask My PDF": "Answer questions using the uploaded PDF document. If the answer is not in the document, clearly say so.",
+
     "Internet Search": "Use the latest internet search results to answer the student's question. Include useful source links and explain the information in simple English.",
+
     "Coding Assistant": "Act as an expert programming tutor. Generate correct code in Python, Java, C, and C++. Explain code line by line, debug errors, identify mistakes, and suggest optimized solutions. Use beginner-friendly explanations.",
+
     "Image Understanding": "Analyze the uploaded image carefully. Explain diagrams, handwritten notes, mathematical problems, flowcharts, and programming screenshots in simple English."
 }
+
 
 # ---------- SESSION STATE ----------
 if "pdf_text" not in st.session_state:
     st.session_state.pdf_text = ""
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
 if "feature" not in st.session_state:
     st.session_state.feature = "AI Tutor"
-  
-# ---------- PDF UPLOAD ----------
-st.sidebar.markdown("### 📄 Upload Study Notes")
 
-uploaded_pdf = st.sidebar.file_uploader(
-    "Choose a PDF file",
-    type=["pdf"]
-)
-
-if uploaded_pdf:
-    from pypdf import PdfReader
-
-    reader = PdfReader(uploaded_pdf)
-
-    pdf_text = ""
-
-    for page in reader.pages:
-        pdf_text += page.extract_text() or ""
-
-    st.session_state.pdf_text = pdf_text
-
-    st.sidebar.success("PDF uploaded successfully!")
-
-    st.sidebar.caption(
-        f"Pages: {len(reader.pages)}"
-    )
 
 # ---------- SIDEBAR ----------
-# ---------- IMAGE UPLOAD ----------
-st.sidebar.markdown("### 🖼️ Upload an Image")
-
-uploaded_image = st.sidebar.file_uploader(
-    "Choose an image",
-    type=["png", "jpg", "jpeg"]
-)
-if uploaded_image:
-    st.session_state.uploaded_image = uploaded_image
-    st.sidebar.success("Image uploaded successfully!")
-st.sidebar.markdown("### 💻 Programming Language")
-
-programming_language = st.sidebar.selectbox(
-    "Choose a language",
-    ["Python", "Java", "C", "C++"]
-)
 with st.sidebar:
+
     st.markdown("## 📚 StudyMate AI")
     st.caption("Your personal learning companion")
 
     st.divider()
 
-    if st.button("＋  New Chat", use_container_width=True):
+    if st.button("＋ New Chat", use_container_width=True):
         st.session_state.messages = []
         st.rerun()
 
-    st.markdown("### Study tools")
+    st.markdown("### Study Tools")
 
     selected_feature = st.radio(
         "Choose a learning mode",
         list(features.keys()),
-        index=list(features.keys()).index(st.session_state.feature)
+        index=list(features.keys()).index(
+            st.session_state.feature
+        )
     )
 
     st.session_state.feature = selected_feature
 
     st.divider()
 
+    # PDF UPLOAD
+    st.markdown("### 📄 Upload Study Notes")
+
+    uploaded_pdf = st.file_uploader(
+        "Choose a PDF file",
+        type=["pdf"]
+    )
+
+    if uploaded_pdf:
+        try:
+            reader = PdfReader(uploaded_pdf)
+
+            pdf_text = ""
+
+            for page in reader.pages:
+                pdf_text += page.extract_text() or ""
+
+            st.session_state.pdf_text = pdf_text
+
+            st.success("PDF uploaded successfully!")
+            st.caption(f"Pages: {len(reader.pages)}")
+
+        except Exception as e:
+            st.error(f"PDF error: {e}")
+
+    # IMAGE UPLOAD
+    st.markdown("### 🖼️ Upload an Image")
+
+    uploaded_image = st.file_uploader(
+        "Choose an image",
+        type=["png", "jpg", "jpeg"]
+    )
+
+    if uploaded_image:
+        st.session_state.uploaded_image = uploaded_image
+        st.success("Image uploaded successfully!")
+
+    # PROGRAMMING LANGUAGE
+    st.markdown("### 💻 Programming Language")
+
+    programming_language = st.selectbox(
+        "Choose a language",
+        ["Python", "Java", "C", "C++"]
+    )
+
+    st.divider()
+
     st.markdown("### About")
     st.caption("Study smarter with AI-powered learning tools.")
-
     st.caption("Powered by Google Gemini")
+
 
 # ---------- MAIN CHAT ----------
 st.markdown(
@@ -196,79 +222,104 @@ if not st.session_state.messages:
     </div>
     """, unsafe_allow_html=True)
 
-# Display previous messages
+
+# ---------- DISPLAY CHAT HISTORY ----------
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
+
 # ---------- CHAT INPUT ----------
 user_input = st.chat_input("Message StudyMate AI...")
 
+
 if user_input:
+
+    # SEARCH INTERNET
     search_results = ""
 
     if st.session_state.feature == "Internet Search":
         with st.spinner("Searching the internet..."):
             search_results = search_internet(user_input)
 
+    # SAVE USER MESSAGE
     st.session_state.messages.append({
         "role": "user",
         "content": user_input
     })
 
-
     with st.chat_message("user"):
         st.markdown(user_input)
 
+    # GEMINI RESPONSE
     with st.chat_message("assistant"):
+
         with st.spinner("StudyMate AI is thinking..."):
 
             prompt = f"""
 You are StudyMate AI, a friendly and knowledgeable personal study tutor.
 
 Selected learning mode: {st.session_state.feature}
+
 Programming language: {programming_language}
 
 Instructions:
 {features[st.session_state.feature]}
 
 Use simple English, clear headings and practical examples.
-Be accurate and helpful. If the user asks a general follow-up,
-answer it naturally while respecting the selected learning mode.
+Be accurate and helpful.
+
+If the user asks a general follow-up,
+answer naturally while respecting the selected learning mode.
 
 Uploaded PDF content:
 {st.session_state.get("pdf_text", "")[:30000]}
+
 Internet search results:
 {search_results}
+
 Student's message:
 {user_input}
-"""         
-try:
-    request_contents = [prompt]
+"""
 
-    if st.session_state.feature == "Image Understanding":
-        if "uploaded_image" in st.session_state:
-            image_part = types.Part.from_bytes(
-                data=st.session_state.uploaded_image.getvalue(),
-                mime_type=st.session_state.uploaded_image.type
-            )
+            try:
 
-            request_contents.append(image_part)
+                request_contents = [prompt]
 
-    response = client.models.generate_content(
-        model=MODEL_NAME,
-        contents=request_contents
-    )
-            
+                # IMAGE UNDERSTANDING
+                if st.session_state.feature == "Image Understanding":
 
-                answer = response.text
+                    if "uploaded_image" in st.session_state:
+
+                        image_part = types.Part.from_bytes(
+                            data=st.session_state.uploaded_image.getvalue(),
+                            mime_type=st.session_state.uploaded_image.type
+                        )
+
+                        request_contents.append(image_part)
+
+                    else:
+                        st.warning(
+                            "Please upload an image in the sidebar first."
+                        )
+                        st.stop()
+
+                # GENERATE GEMINI RESPONSE
+                response = client.models.generate_content(
+                    model=MODEL_NAME,
+                    contents=request_contents
+                )
+
+                answer = response.text or "No response was generated."
+
                 st.markdown(answer)
 
+                # SAVE ASSISTANT MESSAGE
                 st.session_state.messages.append({
                     "role": "assistant",
                     "content": answer
                 })
 
             except Exception as e:
-                st.error(f"Something went wrong: {e}")
 
+                st.error(f"Something went wrong: {e}")
