@@ -149,6 +149,8 @@ with st.sidebar:
         st.rerun()
 
     st.markdown("### 💬 Chat History")
+    st.markdown("### 📊 Learning Dashboard")
+    st.metric("Total Questions Asked", st.session_state.total_questions)
 
     if st.session_state.messages:
         st.caption("Current conversation")
