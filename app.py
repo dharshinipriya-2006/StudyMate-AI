@@ -149,9 +149,18 @@ with st.sidebar:
         st.rerun()
 
     st.markdown("### 💬 Chat History")
+
+    if st.session_state.messages:
+        st.caption("Current conversation")
+        st.write(f"Messages: {len(st.session_state.messages)}")
+    else:
+        st.caption("No previous conversations yet.")
+
+    st.divider()
+
     st.markdown("### 📊 Learning Dashboard")
     st.metric("Total Questions Asked", st.session_state.total_questions)
-   
+
     if st.session_state.messages:
         chat_text = ""
 
@@ -165,14 +174,8 @@ with st.sidebar:
             mime="text/plain",
             use_container_width=True
         )
-    if st.session_state.messages:
-        st.caption("Current conversation")
-        st.write(f"Messages: {len(st.session_state.messages)}")
-    else:
-        st.caption("No previous conversations yet.")
 
     st.divider()
-    
     st.markdown("### Study Tools")
 
     selected_feature = st.radio(
