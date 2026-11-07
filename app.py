@@ -143,6 +143,9 @@ uploaded_image = st.sidebar.file_uploader(
     "Choose an image",
     type=["png", "jpg", "jpeg"]
 )
+if uploaded_image:
+    st.session_state.uploaded_image = uploaded_image
+    st.sidebar.success("Image uploaded successfully!")
 st.sidebar.markdown("### 💻 Programming Language")
 
 programming_language = st.sidebar.selectbox(
