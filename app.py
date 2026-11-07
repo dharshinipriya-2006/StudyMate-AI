@@ -137,14 +137,15 @@ with st.sidebar:
 
     st.divider()
 
-    if st.button("＋ New Chat", use_container_width=True):
+        if st.button("＋ New Chat", use_container_width=True):
         st.session_state.messages = []
         st.rerun()
-    if st.button("🗑️ Clear Chat History", use_container_width=True):
-    st.session_state.messages = []
-    st.session_state.pdf_text = ""
-    st.rerun()
 
+    if st.button("🗑️ Clear Chat History", use_container_width=True):
+        st.session_state.messages = []
+        st.session_state.pdf_text = ""
+        st.rerun()
+   
     st.markdown("### Study Tools")
 
     selected_feature = st.radio(
