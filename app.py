@@ -1,67 +1,182 @@
 
-import streamlit as st
 import os
+import streamlit as st
 from google import genai
 
+# ---------- PAGE CONFIG ----------
 st.set_page_config(
     page_title="StudyMate AI",
     page_icon="📚",
-    layout="centered"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-st.title("📚 StudyMate AI")
-st.subheader("Your Personal AI Study Assistant")
+# ---------- CUSTOM DESIGN ----------
+st.markdown("""
+<style>
+.stApp {
+    background: #111318;
+    color: #E8EAED;
+}
+[data-testid="stSidebar"] {
+    background: #191B23;
+    border-right: 1px solid #30323B;
+}
+.block-container {
+    max-width: 900px;
+    padding-top: 2rem;
+    padding-bottom: 7rem;
+}
+.welcome {
+    text-align: center;
+    padding-top: 90px;
+    padding-bottom: 30px;
+}
+.welcome h1 {
+    font-size: 42px;
+    font-weight: 700;
+}
+.welcome p {
+    color: #A7AAB5;
+    font-size: 17px;
+}
+.stChatMessage {
+    border-radius: 15px;
+    border: 1px solid #30323B;
+}
+.stChatInput {
+    border-radius: 18px;
+}
+div.stButton > button {
+    border-radius: 12px;
+    border: 1px solid #414450;
+}
+</style>
+""", unsafe_allow_html=True)
 
-st.write("Learn smarter with your AI-powered study companion!")
-
-api_key = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
+# ---------- GEMINI CONNECTION ----------
+api_key = st.secrets.get(
+    "GEMINI_API_KEY",
+    os.getenv("GEMINI_API_KEY")
+)
 
 if not api_key:
-    st.error("Gemini API key is not configured.")
+    st.error("Gemini API key is missing. Configure it in Streamlit Secrets.")
     st.stop()
 
 client = genai.Client(api_key=api_key)
 MODEL_NAME = "gemini-3.5-flash-lite"
 
+# ---------- STUDY TOOLS ----------
 features = {
-    "AI Tutor": "Explain the topic step by step with examples.",
-    "Notes Summarizer": "Summarize notes using simple English and key points.",
-    "Quiz Generator": "Create 5 multiple-choice questions with four options, answers and explanations.",
-    "Flashcard Generator": "Create 10 question-and-answer flashcards.",
-    "Doubt Solver": "Solve the doubt with a step-by-step explanation.",
-    "AI Study Planner": "Create a practical study timetable with breaks and revision."
+    "AI Tutor": "Explain the topic step by step using simple English and examples. Ask one practice question.",
+    "Notes Summarizer": "Summarize the notes with an overview, important points, definitions and exam preparation notes.",
+    "Quiz Generator": "Create 5 multiple-choice questions with four options, correct answers and explanations.",
+    "Flashcard Generator": "Create 10 question-and-answer flashcards for revision.",
+    "Doubt Solver": "Solve the student's doubt step by step with a simple example.",
+    "AI Study Planner": "Create a practical study timetable with learning goals, breaks and revision."
 }
 
-feature = st.selectbox("Choose a feature", list(features.keys()))
+# ---------- SESSION STATE ----------
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-user_input = st.text_area(
-    "Enter your topic, notes, or question:",
-    height=150
+if "feature" not in st.session_state:
+    st.session_state.feature = "AI Tutor"
+
+# ---------- SIDEBAR ----------
+with st.sidebar:
+    st.markdown("## 📚 StudyMate AI")
+    st.caption("Your personal learning companion")
+
+    st.divider()
+
+    if st.button("＋  New Chat", use_container_width=True):
+        st.session_state.messages = []
+        st.rerun()
+
+    st.markdown("### Study tools")
+
+    selected_feature = st.radio(
+        "Choose a learning mode",
+        list(features.keys()),
+        index=list(features.keys()).index(st.session_state.feature)
+    )
+
+    st.session_state.feature = selected_feature
+
+    st.divider()
+
+    st.markdown("### About")
+    st.caption("Study smarter with AI-powered learning tools.")
+
+    st.caption("Powered by Google Gemini")
+
+# ---------- MAIN CHAT ----------
+st.markdown(
+    f"<p style='color:#A7AAB5'>📚 StudyMate AI / {st.session_state.feature}</p>",
+    unsafe_allow_html=True
 )
 
-if st.button("Generate", type="primary"):
+if not st.session_state.messages:
+    st.markdown("""
+    <div class="welcome">
+        <h1>👋 Hello, Student!</h1>
+        <p>What would you like to learn today?</p>
+        <p>Ask questions, summarize notes, create quizzes or plan your studies.</p>
+    </div>
+    """, unsafe_allow_html=True)
 
-    if not user_input.strip():
-        st.warning("Please enter some content.")
+# Display previous messages
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
-    else:
-        prompt = f"""
-        You are StudyMate AI, a friendly personal study assistant.
-        Feature: {feature}
-        Instructions: {features[feature]}
-        Use simple English and clear formatting.
-        Student input: {user_input}
-        """
+# ---------- CHAT INPUT ----------
+user_input = st.chat_input("Message StudyMate AI...")
 
-        try:
-            with st.spinner("StudyMate AI is thinking..."):
+if user_input:
+    st.session_state.messages.append({
+        "role": "user",
+        "content": user_input
+    })
+
+    with st.chat_message("user"):
+        st.markdown(user_input)
+
+    with st.chat_message("assistant"):
+        with st.spinner("StudyMate AI is thinking..."):
+
+            prompt = f"""
+You are StudyMate AI, a friendly and knowledgeable personal study tutor.
+
+Selected learning mode: {st.session_state.feature}
+
+Instructions:
+{features[st.session_state.feature]}
+
+Use simple English, clear headings and practical examples.
+Be accurate and helpful. If the user asks a general follow-up,
+answer it naturally while respecting the selected learning mode.
+
+Student's message:
+{user_input}
+"""
+
+            try:
                 response = client.models.generate_content(
                     model=MODEL_NAME,
                     contents=prompt
                 )
 
-            st.success("Your result is ready!")
-            st.markdown(response.text)
+                answer = response.text
+                st.markdown(answer)
 
-        except Exception as e:
-            st.error(f"Error: {e}")
+                st.session_state.messages.append({
+                    "role": "assistant",
+                    "content": answer
+                })
+
+            except Exception as e:
+                st.error(f"Something went wrong: {e}")
+
