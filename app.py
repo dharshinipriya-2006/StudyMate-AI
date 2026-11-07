@@ -234,8 +234,27 @@ user_input = st.chat_input("Message StudyMate AI...")
 
 voice_input = st.audio_input("🎤 Record your question")
 
+if voice_input:
+    with st.spinner("Converting your voice into text..."):
+        try:
+            audio_part = types.Part.from_bytes(
+                data=voice_input.getvalue(),
+                mime_type=voice_input.type
+            )
 
-if user_input:
+            transcription = client.models.generate_content(
+                model=MODEL_NAME,
+                contents=[
+                    "Transcribe the spoken words exactly. Return only the transcription.",
+                    audio_part
+                ]
+            )
+
+            user_input = transcription.text
+
+        except Exception as e:
+            st.error(f"Voice transcription error: {e}")
+            st.stop()
 
     # SEARCH INTERNET
     search_results = ""
