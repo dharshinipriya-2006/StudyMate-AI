@@ -4,7 +4,7 @@ StudyMate AI is an AI-powered learning assistant designed to help students learn
 
 ## 🚀 Live Demo
 
-[Click here to try StudyMate AI](studymate-ai-hg7bg3dhd6krxonyd3pu42)
+studymate-ai-hg7bg3dhd6krxonyd3pu42
 
 ## ✨ Features
 
