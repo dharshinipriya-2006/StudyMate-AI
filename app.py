@@ -304,6 +304,9 @@ Uploaded PDF content:
 Internet search results:
 {search_results}
 
+Previous conversation:
+{st.session_state.messages[-10:]}
+
 Student's message:
 {user_input}
 """
