@@ -2,10 +2,6 @@
 
 StudyMate AI is an AI-powered learning assistant designed to help students learn smarter and prepare effectively for exams. It uses Google Gemini AI and Streamlit to provide interactive learning tools in one application.
 
-## 🚀 Live Demo
-
-studymate-ai-hg7bg3dhd6krxonyd3pu42
-
 ## ✨ Features
 
 - 🤖 **AI Tutor** – Explains complex topics in simple English with examples.
