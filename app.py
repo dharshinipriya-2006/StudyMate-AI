@@ -140,6 +140,10 @@ with st.sidebar:
     if st.button("＋ New Chat", use_container_width=True):
         st.session_state.messages = []
         st.rerun()
+    if st.button("🗑️ Clear Chat History", use_container_width=True):
+    st.session_state.messages = []
+    st.session_state.pdf_text = ""
+    st.rerun()
 
     st.markdown("### Study Tools")
 
