@@ -125,6 +125,8 @@ if "pdf_text" not in st.session_state:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+if "total_questions" not in st.session_state:
+    st.session_state.total_questions = 0
 if "feature" not in st.session_state:
     st.session_state.feature = "AI Tutor"
 
