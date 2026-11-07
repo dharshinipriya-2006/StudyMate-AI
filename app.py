@@ -232,6 +232,8 @@ for message in st.session_state.messages:
 # ---------- CHAT INPUT ----------
 user_input = st.chat_input("Message StudyMate AI...")
 
+voice_input = st.audio_input("🎤 Record your question")
+
 
 if user_input:
 
