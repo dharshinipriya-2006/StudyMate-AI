@@ -137,7 +137,7 @@ with st.sidebar:
 
     st.divider()
 
-        if st.button("＋ New Chat", use_container_width=True):
+    if st.button("＋ New Chat", use_container_width=True):
         st.session_state.messages = []
         st.rerun()
 
