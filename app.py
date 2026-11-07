@@ -136,6 +136,12 @@ if uploaded_pdf:
     )
 
 # ---------- SIDEBAR ----------
+st.sidebar.markdown("### 💻 Programming Language")
+
+programming_language = st.sidebar.selectbox(
+    "Choose a language",
+    ["Python", "Java", "C", "C++"]
+)
 with st.sidebar:
     st.markdown("## 📚 StudyMate AI")
     st.caption("Your personal learning companion")
