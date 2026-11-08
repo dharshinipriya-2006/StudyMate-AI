@@ -52,44 +52,83 @@ with st.sidebar:
 
     st.session_state.theme = selected_theme
 # ---------- DESIGN ----------
-st.markdown("""
+
+# ---------- DESIGN ----------
+
+if st.session_state.theme == "Dark":
+    bg_color = "#111318"
+    sidebar_color = "#191B23"
+    text_color = "#F1F3F5"
+    secondary_color = "#A7AAB5"
+    card_color = "#20232D"
+    border_color = "#343744"
+    accent_color = "#A78BFA"
+else:
+    bg_color = "#F7F8FC"
+    sidebar_color = "#FFFFFF"
+    text_color = "#202333"
+    secondary_color = "#687086"
+    card_color = "#FFFFFF"
+    border_color = "#E3E5EF"
+    accent_color = "#7654D6"
+
+st.markdown(f"""
 <style>
-.stApp {
-    background: #111318;
-    color: #E8EAED;
-}
-[data-testid="stSidebar"] {
-    background: #191B23;
-    border-right: 1px solid #30323B;
-}
-.block-container {
-    max-width: 900px;
+.stApp {{
+    background-color: {bg_color};
+    color: {text_color};
+}}
+
+[data-testid="stSidebar"] {{
+    background-color: {sidebar_color};
+    border-right: 1px solid {border_color};
+}}
+
+.block-container {{
+    max-width: 1000px;
     padding-top: 2rem;
     padding-bottom: 7rem;
-}
-.welcome {
+}}
+
+.welcome {{
     text-align: center;
     padding-top: 90px;
     padding-bottom: 30px;
-}
-.welcome h1 {
+}}
+
+.welcome h1 {{
     font-size: 42px;
     font-weight: 700;
-}
-.welcome p {
-    color: #A7AAB5;
+    color: {text_color};
+}}
+
+.welcome p {{
+    color: {secondary_color};
     font-size: 17px;
-}
-.stChatMessage {
-    border-radius: 15px;
-    border: 1px solid #30323B;
-}
-div.stButton > button {
+}}
+
+.stChatMessage {{
+    border-radius: 16px;
+    border: 1px solid {border_color};
+    background-color: {card_color};
+}}
+
+div.stButton > button {{
     border-radius: 12px;
-    border: 1px solid #414450;
-}
+    border: 1px solid {border_color};
+    background-color: {card_color};
+    color: {text_color};
+}}
+
+.stSelectbox label,
+.stRadio label {{
+    color: {text_color};
+}}
+
 </style>
 """, unsafe_allow_html=True)
+
+
 
 
 # ---------- GEMINI CONNECTION ----------
