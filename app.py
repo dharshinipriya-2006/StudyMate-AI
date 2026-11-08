@@ -1,4 +1,4 @@
- 
+
 import os
 import hashlib
 import streamlit as st
@@ -9,6 +9,7 @@ from pypdf import PdfReader
 
 
 # ---------- PAGE CONFIG ----------
+
 st.set_page_config(
     page_title="StudyMate AI",
     page_icon="📚",
@@ -17,158 +18,8 @@ st.set_page_config(
 )
 
 
-# ---------- INTERNET SEARCH ----------
-def search_internet(query):
-    try:
-        results = DDGS().text(query, max_results=5)
-
-        search_results = ""
-
-        for result in results:
-            search_results += (
-                f"Title: {result.get('title', '')}\n"
-                f"Description: {result.get('body', '')}\n"
-                f"Link: {result.get('href', '')}\n\n"
-            )
-
-        return search_results or "No search results found."
-
-    except Exception as e:
-        return f"Search error: {e}"
-
-# ---------- THEME SETTINGS ----------
-
-if "theme" not in st.session_state:
-    st.session_state.theme = "Dark"
-
-with st.sidebar:
-    st.markdown("### 🎨 Appearance")
-
-    selected_theme = st.selectbox(
-        "Choose theme",
-        ["Dark", "Light"],
-        index=["Dark", "Light"].index(st.session_state.theme)
-    )
-
-    st.session_state.theme = selected_theme
-
-# ---------- DESIGN ----------
-
-if st.session_state.theme == "Dark":
-    bg_color = "#111318"
-    sidebar_color = "#191B23"
-    text_color = "#F1F3F5"
-    secondary_color = "#A7AAB5"
-    card_color = "#20232D"
-    border_color = "#343744"
-    accent_color = "#A78BFA"
-else:
-    bg_color = "#F7F8FC"
-    sidebar_color = "#FFFFFF"
-    text_color = "#202333"
-    secondary_color = "#687086"
-    card_color = "#FFFFFF"
-    border_color = "#E3E5EF"
-    accent_color = "#7654D6"
-
-st.markdown(f"""
-<style>
-.stApp {{
-    background-color: {bg_color};
-    color: {text_color};
-}}
-
-[data-testid="stSidebar"] {{
-    background-color: {sidebar_color};
-    border-right: 1px solid {border_color};
-}}
-
-.block-container {{
-    max-width: 1000px;
-    padding-top: 2rem;
-    padding-bottom: 7rem;
-}}
-
-.welcome {{
-    text-align: center;
-    padding-top: 90px;
-    padding-bottom: 30px;
-}}
-
-.welcome h1 {{
-    font-size: 42px;
-    font-weight: 700;
-    color: {text_color};
-}}
-
-.welcome p {{
-    color: {secondary_color};
-    font-size: 17px;
-}}
-
-.stChatMessage {{
-    border-radius: 16px;
-    border: 1px solid {border_color};
-    background-color: {card_color};
-}}
-
-div.stButton > button {{
-    border-radius: 12px;
-    border: 1px solid {border_color};
-    background-color: {card_color};
-    color: {text_color};
-}}
-
-.stSelectbox label,
-.stRadio label {{
-    color: {text_color};
-}}
-
-</style>
-""", unsafe_allow_html=True)
-
-
-
-
-# ---------- GEMINI CONNECTION ----------
-api_key = st.secrets.get(
-    "GEMINI_API_KEY",
-    os.getenv("GEMINI_API_KEY")
-)
-
-if not api_key:
-    st.error("Gemini API key is missing. Configure it in Streamlit Secrets.")
-    st.stop()
-
-client = genai.Client(api_key=api_key)
-MODEL_NAME = "gemini-3.5-flash-lite"
-
-
-# ---------- STUDY TOOLS ----------
-features = {
-    "AI Tutor": "Explain the topic step by step using simple English and examples.",
-
-    "Notes Summarizer": "Summarize the notes with an overview, important points, definitions and exam preparation notes.",
-
-    "Quiz Generator": "Create 5 multiple-choice questions with four options, correct answers and explanations.",
-
-    "Flashcard Generator": "Create 10 question-and-answer flashcards for revision.",
-
-    "Doubt Solver": "Solve the student's doubt step by step with a simple example.",
-
-    "AI Study Planner": "Create a practical study timetable with learning goals, breaks and revision.",
-
-    "Ask My PDF": "Answer questions using the uploaded PDF. If the answer is not in the document, clearly say so.",
-
-    "Internet Search": "Use the latest internet search results to answer the question. Include useful source links.",
-
-    "Coding Assistant": "Act as an expert programming tutor. Generate code in Python, Java, C and C++. Explain code line by line and debug errors.",
-
-    "Image Understanding": "Analyze the uploaded image carefully. Explain diagrams, handwritten notes, mathematical problems and programming screenshots."
-}
-
-
 # ---------- SESSION STATE ----------
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -187,19 +38,196 @@ if "total_questions" not in st.session_state:
 if "last_audio_hash" not in st.session_state:
     st.session_state.last_audio_hash = ""
 
+if "theme" not in st.session_state:
+    st.session_state.theme = "Dark"
 
-# ---------- SIDEBAR ----------
-with st.sidebar:
 
-    st.markdown("## 📚 StudyMate AI")
-    st.caption("Your personal learning companion")
+# ---------- THEME COLORS ----------
 
-    st.divider()
+if st.session_state.theme == "Dark":
 
-# ---------- SIDEBAR STYLING ----------
+    bg_color = "#111318"
+    sidebar_color = "#191B23"
+    text_color = "#F1F3F5"
+    secondary_color = "#A7AAB5"
+    card_color = "#20232D"
+    border_color = "#343744"
+    accent_color = "#A78BFA"
+
+else:
+
+    bg_color = "#F7F8FC"
+    sidebar_color = "#FFFFFF"
+    text_color = "#202333"
+    secondary_color = "#687086"
+    card_color = "#FFFFFF"
+    border_color = "#E3E5EF"
+    accent_color = "#7654D6"
+
+
+# ---------- GEMINI CONNECTION ----------
+
+api_key = st.secrets.get(
+    "GEMINI_API_KEY",
+    os.getenv("GEMINI_API_KEY")
+)
+
+if not api_key:
+    st.error(
+        "Gemini API key is missing. "
+        "Configure it in Streamlit Secrets."
+    )
+    st.stop()
+
+client = genai.Client(api_key=api_key)
+
+MODEL_NAME = "gemini-3.5-flash-lite"
+
+
+# ---------- INTERNET SEARCH ----------
+
+def search_internet(query):
+
+    try:
+
+        results = DDGS().text(
+            query,
+            max_results=5
+        )
+
+        search_results = ""
+
+        for result in results:
+
+            search_results += (
+                f"Title: {result.get('title', '')}\n"
+                f"Description: {result.get('body', '')}\n"
+                f"Link: {result.get('href', '')}\n\n"
+            )
+
+        return search_results or "No search results found."
+
+    except Exception as e:
+
+        return f"Search error: {e}"
+
+
+# ---------- STUDY TOOLS ----------
+
+features = {
+
+    "AI Tutor":
+        "Explain the topic step by step using simple English and examples.",
+
+    "Notes Summarizer":
+        "Summarize the notes with an overview, important points, definitions and exam preparation notes.",
+
+    "Quiz Generator":
+        "Create 5 multiple-choice questions with four options, correct answers and explanations.",
+
+    "Flashcard Generator":
+        "Create 10 question-and-answer flashcards for revision.",
+
+    "Doubt Solver":
+        "Solve the student's doubt step by step with a simple example.",
+
+    "AI Study Planner":
+        "Create a practical study timetable with learning goals, breaks and revision.",
+
+    "Ask My PDF":
+        "Answer questions using the uploaded PDF. If the answer is not in the document, clearly say so.",
+
+    "Internet Search":
+        "Use the latest internet search results to answer the question. Include useful source links.",
+
+    "Coding Assistant":
+        "Act as an expert programming tutor. Generate code in Python, Java, C and C++. Explain code line by line and debug errors.",
+
+    "Image Understanding":
+        "Analyze the uploaded image carefully. Explain diagrams, handwritten notes, mathematical problems and programming screenshots."
+}
+
+
+# ---------- MAIN DESIGN ----------
 
 st.markdown(f"""
 <style>
+
+.stApp {{
+    background-color: {bg_color};
+    color: {text_color};
+}}
+
+[data-testid="stSidebar"] {{
+    background-color: {sidebar_color};
+    border-right: 1px solid {border_color};
+}}
+
+.block-container {{
+    max-width: 1000px;
+    padding-top: 2rem;
+    padding-bottom: 5rem;
+}}
+
+.studymate-title {{
+    font-size: 36px;
+    font-weight: 800;
+    text-align: center;
+    color: {accent_color};
+    margin-bottom: 8px;
+}}
+
+.studymate-subtitle {{
+    text-align: center;
+    color: {secondary_color};
+    font-size: 16px;
+    margin-bottom: 35px;
+}}
+
+.feature-card {{
+    background: {card_color};
+    border: 1px solid {border_color};
+    border-radius: 16px;
+    padding: 20px;
+    min-height: 115px;
+    margin-bottom: 14px;
+    transition: 0.2s ease;
+}}
+
+.feature-card:hover {{
+    border-color: {accent_color};
+}}
+
+.feature-card h4 {{
+    color: {text_color};
+    margin: 0 0 8px 0;
+    font-size: 17px;
+}}
+
+.feature-card p {{
+    color: {secondary_color};
+    margin: 0;
+    font-size: 13px;
+}}
+
+.stChatMessage {{
+    border-radius: 16px;
+    border: 1px solid {border_color};
+    background-color: {card_color};
+    margin-bottom: 12px;
+}}
+
+[data-testid="stChatInput"] {{
+    border: 1px solid {border_color};
+    border-radius: 18px;
+    background-color: {card_color};
+}}
+
+[data-testid="stChatInput"] textarea {{
+    color: {text_color};
+    font-size: 15px;
+}}
+
 [data-testid="stSidebar"] h2 {{
     color: {accent_color};
     font-size: 25px;
@@ -219,11 +247,6 @@ st.markdown(f"""
     padding: 12px;
 }}
 
-[data-testid="stSidebar"] .stRadio label {{
-    padding: 5px 8px;
-    border-radius: 8px;
-}}
-
 [data-testid="stSidebar"] [data-testid="stFileUploader"] {{
     background: {card_color};
     border: 1px dashed {border_color};
@@ -231,26 +254,86 @@ st.markdown(f"""
     padding: 8px;
 }}
 
+div.stButton > button {{
+    border-radius: 12px;
+    border: 1px solid {border_color};
+    background-color: {card_color};
+    color: {text_color};
+}}
+
+.stSelectbox label,
+.stRadio label {{
+    color: {text_color};
+}}
+
+.stSpinner > div {{
+    border-top-color: {accent_color};
+}}
+
 </style>
 """, unsafe_allow_html=True)
 
+
+# ---------- SIDEBAR ----------
+
+with st.sidebar:
+
+    st.markdown("## 📚 StudyMate AI")
+
+    st.caption("Your personal learning companion")
+
+    st.divider()
+
+    # THEME SELECTOR
+
+    st.markdown("### 🎨 Appearance")
+
+    selected_theme = st.selectbox(
+        "Choose theme",
+        ["Dark", "Light"],
+        index=["Dark", "Light"].index(
+            st.session_state.theme
+        )
+    )
+
+    if selected_theme != st.session_state.theme:
+
+        st.session_state.theme = selected_theme
+        st.rerun()
+
+    st.divider()
+
     # NEW CHAT
-    if st.button("＋ New Chat", use_container_width=True):
+
+    if st.button(
+        "＋ New Chat",
+        use_container_width=True
+    ):
+
         st.session_state.messages = []
         st.session_state.pdf_text = ""
+        st.session_state.last_audio_hash = ""
+
         st.rerun()
 
     # CLEAR HISTORY
-    if st.button("🗑️ Clear Chat History", use_container_width=True):
+
+    if st.button(
+        "🗑️ Clear Chat History",
+        use_container_width=True
+    ):
+
         st.session_state.messages = []
         st.session_state.pdf_text = ""
         st.session_state.total_questions = 0
         st.session_state.last_audio_hash = ""
+
         st.rerun()
 
     st.divider()
 
     # CHAT HISTORY
+
     st.markdown("### 💬 Chat History")
 
     if st.session_state.messages:
@@ -267,15 +350,23 @@ st.markdown(f"""
             if message["role"] == "user"
         ]
 
-        for index, question in enumerate(user_questions[-5:], 1):
-            st.caption(f"{index}. {question[:60]}")
+        for index, question in enumerate(
+            user_questions[-5:],
+            1
+        ):
+
+            st.caption(
+                f"{index}. {question[:60]}"
+            )
 
     else:
+
         st.caption("No previous conversations yet.")
 
     st.divider()
 
     # LEARNING DASHBOARD
+
     st.markdown("### 📊 Learning Dashboard")
 
     st.metric(
@@ -288,12 +379,14 @@ st.markdown(f"""
         len(st.session_state.messages)
     )
 
-    # EXPORT CHAT
+    # DOWNLOAD CHAT
+
     if st.session_state.messages:
 
         chat_text = ""
 
         for message in st.session_state.messages:
+
             chat_text += (
                 f"{message['role'].upper()}:\n"
                 f"{message['content']}\n\n"
@@ -310,7 +403,8 @@ st.markdown(f"""
     st.divider()
 
     # STUDY TOOLS
-    st.markdown("### Study Tools")
+
+    st.markdown("### 📚 Study Tools")
 
     selected_feature = st.radio(
         "Choose a learning mode",
@@ -325,6 +419,7 @@ st.markdown(f"""
     st.divider()
 
     # PDF UPLOAD
+
     st.markdown("### 📄 Upload Study Notes")
 
     uploaded_pdf = st.file_uploader(
@@ -334,23 +429,31 @@ st.markdown(f"""
     )
 
     if uploaded_pdf:
+
         try:
+
             reader = PdfReader(uploaded_pdf)
 
             pdf_text = ""
 
             for page in reader.pages:
+
                 pdf_text += page.extract_text() or ""
 
             st.session_state.pdf_text = pdf_text
 
             st.success("PDF uploaded successfully!")
-            st.caption(f"Pages: {len(reader.pages)}")
+
+            st.caption(
+                f"Pages: {len(reader.pages)}"
+            )
 
         except Exception as e:
+
             st.error(f"PDF error: {e}")
 
     # IMAGE UPLOAD
+
     st.markdown("### 🖼️ Upload an Image")
 
     uploaded_image = st.file_uploader(
@@ -360,10 +463,13 @@ st.markdown(f"""
     )
 
     if uploaded_image:
+
         st.session_state.uploaded_image = uploaded_image
+
         st.success("Image uploaded successfully!")
 
     # PROGRAMMING LANGUAGE
+
     st.markdown("### 💻 Programming Language")
 
     programming_language = st.selectbox(
@@ -374,51 +480,17 @@ st.markdown(f"""
     st.divider()
 
     st.markdown("### About")
-    st.caption("Study smarter with AI-powered learning tools.")
-    st.caption("Powered by Google Gemini")
+
+    st.caption(
+        "Study smarter with AI-powered learning tools."
+    )
+
+    st.caption(
+        "Powered by Google Gemini"
+    )
 
 
 # ---------- MAIN PAGE ----------
-
-st.markdown(f"""
-<style>
-.studymate-title {{
-    font-size: 34px;
-    font-weight: 800;
-    text-align: center;
-    color: {accent_color};
-    margin-bottom: 5px;
-}}
-
-.studymate-subtitle {{
-    text-align: center;
-    color: {secondary_color};
-    font-size: 16px;
-    margin-bottom: 35px;
-}}
-
-.feature-card {{
-    background: {card_color};
-    border: 1px solid {border_color};
-    border-radius: 16px;
-    padding: 18px;
-    min-height: 105px;
-    margin-bottom: 12px;
-}}
-
-.feature-card h4 {{
-    color: {text_color};
-    margin: 0 0 8px 0;
-    font-size: 17px;
-}}
-
-.feature-card p {{
-    color: {secondary_color};
-    margin: 0;
-    font-size: 13px;
-}}
-</style>
-""", unsafe_allow_html=True)
 
 st.markdown(
     f"📚 **StudyMate AI** / {st.session_state.feature}"
@@ -430,6 +502,7 @@ if not st.session_state.messages:
     <div class="studymate-title">
         Welcome to StudyMate AI ✨
     </div>
+
     <div class="studymate-subtitle">
         Your personal AI learning companion.
         What would you like to learn today?
@@ -439,11 +512,13 @@ if not st.session_state.messages:
     col1, col2 = st.columns(2)
 
     with col1:
+
         st.markdown("""
         <div class="feature-card">
             <h4>🤖 AI Tutor</h4>
             <p>Learn difficult concepts with simple explanations.</p>
         </div>
+
         <div class="feature-card">
             <h4>📝 Notes Summarizer</h4>
             <p>Turn lengthy notes into easy study materials.</p>
@@ -451,11 +526,13 @@ if not st.session_state.messages:
         """, unsafe_allow_html=True)
 
     with col2:
+
         st.markdown("""
         <div class="feature-card">
             <h4>💻 Coding Assistant</h4>
             <p>Understand programming and solve coding doubts.</p>
         </div>
+
         <div class="feature-card">
             <h4>🧠 Quiz Generator</h4>
             <p>Test your knowledge with AI-generated quizzes.</p>
@@ -463,72 +540,59 @@ if not st.session_state.messages:
         """, unsafe_allow_html=True)
 
     st.markdown(
-        "<p style='text-align:center; color:"
-        + secondary_color
-        + "; margin-top:25px;'>Start by typing your question below 👇</p>",
+        f"""
+        <p style="
+            text-align:center;
+            color:{secondary_color};
+            margin-top:25px;
+        ">
+            Start by typing your question below 👇
+        </p>
+        """,
         unsafe_allow_html=True
     )
 
 
-
 # ---------- DISPLAY CHAT HISTORY ----------
+
 for message in st.session_state.messages:
 
     with st.chat_message(message["role"]):
+
         st.markdown(message["content"])
 
 
-# ---------- CHAT INPUT DESIGN ----------
-
-st.markdown(f"""
-<style>
-[data-testid="stChatInput"] {{
-    border: 1px solid {border_color};
-    border-radius: 18px;
-    background-color: {card_color};
-    padding: 5px;
-}}
-
-[data-testid="stChatInput"] textarea {{
-    color: {text_color};
-    font-size: 15px;
-}}
-
-[data-testid="stChatInput"] textarea::placeholder {{
-    color: {secondary_color};
-}}
-
-[data-testid="stChatMessage"] {{
-    border-radius: 16px;
-    margin-bottom: 12px;
-}}
-
-.stSpinner > div {{
-    border-top-color: {accent_color};
-}}
-</style>
-""", unsafe_allow_html=True)
-
 # ---------- USER INPUT ----------
-typed_input = st.chat_input("Message StudyMate AI...")
 
-voice_input = st.audio_input("🎤 Record your question")
+typed_input = st.chat_input(
+    "Message StudyMate AI..."
+)
+
+voice_input = st.audio_input(
+    "🎤 Record your question"
+)
 
 user_input = typed_input
 
 
 # ---------- VOICE TRANSCRIPTION ----------
-if voice_input is not None:
+
+if voice_input is not None and typed_input is None:
 
     audio_bytes = voice_input.getvalue()
 
-    audio_hash = hashlib.sha256(audio_bytes).hexdigest()
+    audio_hash = hashlib.sha256(
+        audio_bytes
+    ).hexdigest()
 
     if audio_hash != st.session_state.last_audio_hash:
 
-        with st.spinner("Converting your voice into text..."):
+        with st.spinner(
+            "Converting your voice into text..."
+        ):
 
             try:
+
                 audio_part = types.Part.from_bytes(
                     data=audio_bytes,
                     mime_type=voice_input.type
@@ -542,74 +606,76 @@ if voice_input is not None:
                     ]
                 )
 
-                user_input = (transcription.text or "").strip()
+                user_input = (
+                    transcription.text or ""
+                ).strip()
 
                 st.session_state.last_audio_hash = audio_hash
 
                 if user_input:
-                    st.info(f"Voice transcription: {user_input}")
+
+                    st.info(
+                        f"Voice transcription: {user_input}"
+                    )
 
             except Exception as e:
-                st.error(f"Voice transcription error: {e}")
+
+                st.error(
+                    f"Voice transcription error: {e}"
+                )
 
 
 # ---------- PROCESS QUESTION ----------
+
 if user_input:
 
     # PREVIOUS CONVERSATION CONTEXT
+
     previous_messages = st.session_state.messages[-10:]
 
     history_context = ""
 
     for message in previous_messages:
+
         history_context += (
             f"{message['role'].upper()}: "
             f"{message['content']}\n"
         )
 
-# ---------- FOOTER ----------
-
-st.markdown(f"""
-<hr style="border: 1px solid {border_color}; margin-top: 50px;">
-
-<div style="
-    text-align: center;
-    color: {secondary_color};
-    padding: 15px;
-    font-size: 13px;
-">
-    <b style="color: {accent_color};">📚 StudyMate AI</b>
-    <br>
-    Learn smarter. Study better. Achieve more.
-    <br>
-    Powered by Google Gemini | Built with Streamlit
-</div>
-""", unsafe_allow_html=True)
-
     # COUNT QUESTION
+
     st.session_state.total_questions += 1
 
     # INTERNET SEARCH
+
     search_results = ""
 
     if st.session_state.feature == "Internet Search":
 
         with st.spinner("Searching the internet..."):
-            search_results = search_internet(user_input)
+
+            search_results = search_internet(
+                user_input
+            )
 
     # SAVE USER MESSAGE
+
     st.session_state.messages.append({
         "role": "user",
         "content": user_input
     })
 
     with st.chat_message("user"):
+
         st.markdown(user_input)
 
     # GEMINI RESPONSE
+
     with st.chat_message("assistant"):
 
-        with st.spinner("StudyMate AI is thinking..."):
+        with st.spinner(
+            "StudyMate AI is thinking..."
+        ):
 
             prompt = f"""
 You are StudyMate AI, a friendly and knowledgeable personal study tutor.
@@ -642,6 +708,7 @@ Student's message:
                 request_contents = [prompt]
 
                 # IMAGE UNDERSTANDING
+
                 if st.session_state.feature == "Image Understanding":
 
                     if st.session_state.uploaded_image is not None:
@@ -651,9 +718,12 @@ Student's message:
                             mime_type=st.session_state.uploaded_image.type
                         )
 
-                        request_contents.append(image_part)
+                        request_contents.append(
+                            image_part
+                        )
 
                     else:
+
                         st.warning(
                             "Please upload an image in the sidebar first."
                         )
@@ -661,16 +731,21 @@ Student's message:
                         st.stop()
 
                 # GEMINI RESPONSE
+
                 response = client.models.generate_content(
                     model=MODEL_NAME,
                     contents=request_contents
                 )
 
-                answer = response.text or "No response was generated."
+                answer = (
+                    response.text or
+                    "No response was generated."
+                )
 
                 st.markdown(answer)
 
                 # SAVE ASSISTANT RESPONSE
+
                 st.session_state.messages.append({
                     "role": "assistant",
                     "content": answer
@@ -678,6 +753,48 @@ Student's message:
 
             except Exception as e:
 
-                st.error(f"Something went wrong: {e}")
+                st.error(
+                    f"Something went wrong: {e}"
+                )
+
+
+# ---------- FOOTER ----------
+
+st.markdown(f"""
+<hr style="
+    border: 1px solid {border_color};
+    margin-top: 50px;
+">
+
+<div style="
+    text-align: center;
+    color: {secondary_color};
+    padding: 15px;
+    font-size: 13px;
+">
+
+    <b style="color: {accent_color};">
+        📚 StudyMate AI
+    </b>
+
+    <br>
+
+    Learn smarter. Study better. Achieve more.
+
+    <br>
+
+    Powered by Google Gemini | Built with Streamlit
+
+</div>
+""", unsafe_allow_html=True)
+ 
+
   
+
+
+   
+
+
+
   
+    
