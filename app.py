@@ -342,25 +342,6 @@ with st.sidebar:
 
     st.divider()
 
-    # THEME SELECTOR
-
-    st.markdown("### 🎨 Appearance")
-
-    selected_theme = st.selectbox(
-        "Choose theme",
-        ["Dark", "Light"],
-        index=["Dark", "Light"].index(
-            st.session_state.theme
-        )
-    )
-
-    if selected_theme != st.session_state.theme:
-
-        st.session_state.theme = selected_theme
-        st.rerun()
-
-    st.divider()
-
     # NEW CHAT
 
     if st.button(
