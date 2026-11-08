@@ -6,6 +6,7 @@ from google import genai
 from google.genai import types
 from ddgs import DDGS
 from pypdf import PdfReader
+from streamlit_mic_recorder import mic_recorder
 
 
 # ---------- PAGE CONFIG ----------
@@ -164,9 +165,9 @@ st.markdown(f"""
 }}
 
 .block-container {{
-    max-width: 1000px;
-    padding-top: 2rem;
-    padding-bottom: 5rem;
+    max-width: 1050px;
+    padding-top: 1rem;
+    padding-bottom: 2rem;
 }}
 
 .studymate-title {{
@@ -563,7 +564,11 @@ for message in st.session_state.messages:
 
 # ---------- CHAT INPUT WITH VOICE ----------
 
-col_input, col_mic = st.columns([10, 1])
+col_input, col_mic = st.columns(
+    [12, 1],
+    vertical_alignment="bottom",
+    gap="small"
+)
 
 with col_input:
 
@@ -573,12 +578,63 @@ with col_input:
 
 with col_mic:
 
-    voice_input = st.audio_input(
-        "🎤",
+    audio_recording = mic_recorder(
+        start_prompt="🎤",
+        stop_prompt="⏹️",
+        just_once=True,
+        use_container_width=True,
         key="voice_recorder"
     )
 
 user_input = typed_input
+
+# ---------- VOICE TRANSCRIPTION ----------
+
+if audio_recording and typed_input is None:
+
+    audio_bytes = audio_recording.get("bytes")
+
+    if audio_bytes:
+
+        audio_hash = hashlib.sha256(
+            audio_bytes
+        ).hexdigest()
+
+        if audio_hash != st.session_state.last_audio_hash:
+
+            with st.spinner("Converting your voice into text..."):
+
+                try:
+
+                    audio_part = types.Part.from_bytes(
+                        data=audio_bytes,
+                        mime_type="audio/wav"
+                    )
+
+                    transcription = client.models.generate_content(
+                        model=MODEL_NAME,
+                        contents=[
+                            "Transcribe the spoken words exactly. Return only the transcription.",
+                            audio_part
+                        ]
+                    )
+
+                    user_input = (
+                        transcription.text or ""
+                    ).strip()
+
+                    st.session_state.last_audio_hash = audio_hash
+
+                    if user_input:
+                        st.info(
+                            f"Voice transcription: {user_input}"
+                        )
+
+                except Exception as e:
+
+                    st.error(
+                        f"Voice transcription error: {e}"
+                    )
 
 # ---------- VOICE TRANSCRIPTION ----------
 
