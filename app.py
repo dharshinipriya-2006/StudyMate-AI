@@ -142,16 +142,15 @@ st.markdown(f"""
     border-right: 1px solid {border_color};
 }}
 
-[data-testid="stSidebar"] {
+[data-testid="stSidebar"] {{
     display: block !important;
     visibility: visible !important;
-    transform: translateX(0) !important;
-}
+}}
 
-[data-testid="stSidebarCollapsedControl"] {
+[data-testid="stSidebarCollapsedControl"] {{
     display: flex !important;
     visibility: visible !important;
-}
+}}
 
 .block-container {{
     max-width: 1050px;
