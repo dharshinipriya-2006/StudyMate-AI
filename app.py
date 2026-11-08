@@ -567,6 +567,25 @@ if user_input:
             f"{message['content']}\n"
         )
 
+# ---------- FOOTER ----------
+
+st.markdown(f"""
+<hr style="border: 1px solid {border_color}; margin-top: 50px;">
+
+<div style="
+    text-align: center;
+    color: {secondary_color};
+    padding: 15px;
+    font-size: 13px;
+">
+    <b style="color: {accent_color};">📚 StudyMate AI</b>
+    <br>
+    Learn smarter. Study better. Achieve more.
+    <br>
+    Powered by Google Gemini | Built with Streamlit
+</div>
+""", unsafe_allow_html=True)
+
     # COUNT QUESTION
     st.session_state.total_questions += 1
 
