@@ -636,50 +636,6 @@ if audio_recording and typed_input is None:
                         f"Voice transcription error: {e}"
                     )
 
-# ---------- VOICE TRANSCRIPTION ----------
-
-if voice_input is not None and typed_input is None:
-
-    audio_bytes = voice_input.getvalue()
-
-    audio_hash = hashlib.sha256(
-        audio_bytes
-    ).hexdigest()
-
-    if audio_hash != st.session_state.last_audio_hash:
-
-        with st.spinner("Converting your voice into text..."):
-
-            try:
-
-                audio_part = types.Part.from_bytes(
-                    data=audio_bytes,
-                    mime_type=voice_input.type
-                )
-
-                transcription = client.models.generate_content(
-                    model=MODEL_NAME,
-                    contents=[
-                        "Transcribe the spoken words exactly. Return only the transcription.",
-                        audio_part
-                    ]
-                )
-
-                user_input = (
-                    transcription.text or ""
-                ).strip()
-
-                st.session_state.last_audio_hash = audio_hash
-
-                if user_input:
-                    st.info(f"Voice transcription: {user_input}")
-
-            except Exception as e:
-
-                st.error(f"Voice transcription error: {e}")
-
-
-
 # ---------- PROCESS QUESTION ----------
 
 if user_input:
