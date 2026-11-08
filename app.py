@@ -440,6 +440,37 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 
+# ---------- CHAT INPUT DESIGN ----------
+
+st.markdown(f"""
+<style>
+[data-testid="stChatInput"] {{
+    border: 1px solid {border_color};
+    border-radius: 18px;
+    background-color: {card_color};
+    padding: 5px;
+}}
+
+[data-testid="stChatInput"] textarea {{
+    color: {text_color};
+    font-size: 15px;
+}}
+
+[data-testid="stChatInput"] textarea::placeholder {{
+    color: {secondary_color};
+}}
+
+[data-testid="stChatMessage"] {{
+    border-radius: 16px;
+    margin-bottom: 12px;
+}}
+
+.stSpinner > div {{
+    border-top-color: {accent_color};
+}}
+</style>
+""", unsafe_allow_html=True)
+
 # ---------- USER INPUT ----------
 typed_input = st.chat_input("Message StudyMate AI...")
 
