@@ -2,3 +2,4 @@ streamlit
 google-genai
 pypdf
 ddgs
+streamlit-mic-recorder
