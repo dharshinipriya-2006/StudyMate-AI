@@ -273,67 +273,60 @@ div.stButton > button {{
 
 /* ---------- MOBILE RESPONSIVE DESIGN ---------- */
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 768px) {{
 
-    .block-container {
+    .block-container {{
         padding-top: 0.8rem !important;
         padding-bottom: 1rem !important;
         padding-left: 0.8rem !important;
         padding-right: 0.8rem !important;
         max-width: 100% !important;
-    }
+    }}
 
-    .studymate-title {
+    .studymate-title {{
         font-size: 27px !important;
         margin-bottom: 5px !important;
-    }
+    }}
 
-    .studymate-subtitle {
+    .studymate-subtitle {{
         font-size: 14px !important;
         margin-bottom: 18px !important;
-    }
+    }}
 
-    .feature-card {
+    .feature-card {{
         min-height: auto !important;
         padding: 14px !important;
         margin-bottom: 9px !important;
         border-radius: 13px !important;
-    }
+    }}
 
-    .feature-card h4 {
+    .feature-card h4 {{
         font-size: 15px !important;
-    }
+    }}
 
-    .feature-card p {
+    .feature-card p {{
         font-size: 12px !important;
-    }
+    }}
 
-    .stChatMessage {
+    .stChatMessage {{
         padding: 10px !important;
         border-radius: 13px !important;
-    }
+    }}
 
-    [data-testid="stChatInput"] {
+    [data-testid="stChatInput"] {{
         width: 100% !important;
         margin-bottom: 5px !important;
-    }
+    }}
 
-    [data-testid="stSidebar"] {
+    [data-testid="stSidebar"] {{
         min-width: 0 !important;
-    }
+    }}
 
-    h1 {
-        font-size: 25px !important;
-    }
+    h1 {{ font-size: 25px !important; }}
+    h2 {{ font-size: 21px !important; }}
+    h3 {{ font-size: 18px !important; }}
 
-    h2 {
-        font-size: 21px !important;
-    }
-
-    h3 {
-        font-size: 18px !important;
-    }
-}
+}}
 
 </style>
 """, unsafe_allow_html=True)
