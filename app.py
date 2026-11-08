@@ -196,6 +196,44 @@ with st.sidebar:
 
     st.divider()
 
+# ---------- SIDEBAR STYLING ----------
+
+st.markdown(f"""
+<style>
+[data-testid="stSidebar"] h2 {{
+    color: {accent_color};
+    font-size: 25px;
+    font-weight: 800;
+}}
+
+[data-testid="stSidebar"] h3 {{
+    color: {text_color};
+    font-size: 17px;
+    font-weight: 700;
+}}
+
+[data-testid="stSidebar"] [data-testid="stMetric"] {{
+    background: {card_color};
+    border: 1px solid {border_color};
+    border-radius: 12px;
+    padding: 12px;
+}}
+
+[data-testid="stSidebar"] .stRadio label {{
+    padding: 5px 8px;
+    border-radius: 8px;
+}}
+
+[data-testid="stSidebar"] [data-testid="stFileUploader"] {{
+    background: {card_color};
+    border: 1px dashed {border_color};
+    border-radius: 12px;
+    padding: 8px;
+}}
+
+</style>
+""", unsafe_allow_html=True)
+
     # NEW CHAT
     if st.button("＋ New Chat", use_container_width=True):
         st.session_state.messages = []
