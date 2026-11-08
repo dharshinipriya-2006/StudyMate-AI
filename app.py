@@ -51,7 +51,6 @@ with st.sidebar:
     )
 
     st.session_state.theme = selected_theme
-# ---------- DESIGN ----------
 
 # ---------- DESIGN ----------
 
@@ -342,18 +341,96 @@ with st.sidebar:
 
 
 # ---------- MAIN PAGE ----------
+
+st.markdown(f"""
+<style>
+.studymate-title {{
+    font-size: 34px;
+    font-weight: 800;
+    text-align: center;
+    color: {accent_color};
+    margin-bottom: 5px;
+}}
+
+.studymate-subtitle {{
+    text-align: center;
+    color: {secondary_color};
+    font-size: 16px;
+    margin-bottom: 35px;
+}}
+
+.feature-card {{
+    background: {card_color};
+    border: 1px solid {border_color};
+    border-radius: 16px;
+    padding: 18px;
+    min-height: 105px;
+    margin-bottom: 12px;
+}}
+
+.feature-card h4 {{
+    color: {text_color};
+    margin: 0 0 8px 0;
+    font-size: 17px;
+}}
+
+.feature-card p {{
+    color: {secondary_color};
+    margin: 0;
+    font-size: 13px;
+}}
+</style>
+""", unsafe_allow_html=True)
+
 st.markdown(
-    f"📚 StudyMate AI / {st.session_state.feature}"
+    f"📚 **StudyMate AI** / {st.session_state.feature}"
 )
 
 if not st.session_state.messages:
+
     st.markdown("""
-    <div class="welcome">
-        <h1>👋 Hello, Student!</h1>
-        <p>What would you like to learn today?</p>
-        <p>Ask questions, summarize notes, create quizzes or plan your studies.</p>
+    <div class="studymate-title">
+        Welcome to StudyMate AI ✨
+    </div>
+    <div class="studymate-subtitle">
+        Your personal AI learning companion.
+        What would you like to learn today?
     </div>
     """, unsafe_allow_html=True)
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("""
+        <div class="feature-card">
+            <h4>🤖 AI Tutor</h4>
+            <p>Learn difficult concepts with simple explanations.</p>
+        </div>
+        <div class="feature-card">
+            <h4>📝 Notes Summarizer</h4>
+            <p>Turn lengthy notes into easy study materials.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.markdown("""
+        <div class="feature-card">
+            <h4>💻 Coding Assistant</h4>
+            <p>Understand programming and solve coding doubts.</p>
+        </div>
+        <div class="feature-card">
+            <h4>🧠 Quiz Generator</h4>
+            <p>Test your knowledge with AI-generated quizzes.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown(
+        "<p style='text-align:center; color:"
+        + secondary_color
+        + "; margin-top:25px;'>Start by typing your question below 👇</p>",
+        unsafe_allow_html=True
+    )
+
 
 
 # ---------- DISPLAY CHAT HISTORY ----------
