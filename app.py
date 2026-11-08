@@ -36,7 +36,21 @@ def search_internet(query):
     except Exception as e:
         return f"Search error: {e}"
 
+# ---------- THEME SETTINGS ----------
 
+if "theme" not in st.session_state:
+    st.session_state.theme = "Dark"
+
+with st.sidebar:
+    st.markdown("### 🎨 Appearance")
+
+    selected_theme = st.selectbox(
+        "Choose theme",
+        ["Dark", "Light"],
+        index=["Dark", "Light"].index(st.session_state.theme)
+    )
+
+    st.session_state.theme = selected_theme
 # ---------- DESIGN ----------
 st.markdown("""
 <style>
