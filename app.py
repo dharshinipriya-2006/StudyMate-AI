@@ -561,19 +561,24 @@ for message in st.session_state.messages:
 
         st.markdown(message["content"])
 
+# ---------- CHAT INPUT WITH VOICE ----------
 
-# ---------- USER INPUT ----------
+col_input, col_mic = st.columns([10, 1])
 
-typed_input = st.chat_input(
-    "Message StudyMate AI..."
-)
+with col_input:
 
-voice_input = st.audio_input(
-    "🎤 Record your question"
-)
+    typed_input = st.chat_input(
+        "Message StudyMate AI..."
+    )
+
+with col_mic:
+
+    voice_input = st.audio_input(
+        "🎤",
+        key="voice_recorder"
+    )
 
 user_input = typed_input
-
 
 # ---------- VOICE TRANSCRIPTION ----------
 
@@ -587,9 +592,7 @@ if voice_input is not None and typed_input is None:
 
     if audio_hash != st.session_state.last_audio_hash:
 
-        with st.spinner(
-            "Converting your voice into text..."
-        ):
+        with st.spinner("Converting your voice into text..."):
 
             try:
 
@@ -613,16 +616,12 @@ if voice_input is not None and typed_input is None:
                 st.session_state.last_audio_hash = audio_hash
 
                 if user_input:
-
-                    st.info(
-                        f"Voice transcription: {user_input}"
-                    )
+                    st.info(f"Voice transcription: {user_input}")
 
             except Exception as e:
 
-                st.error(
-                    f"Voice transcription error: {e}"
-                )
+                st.error(f"Voice transcription error: {e}")
+
 
 
 # ---------- PROCESS QUESTION ----------
